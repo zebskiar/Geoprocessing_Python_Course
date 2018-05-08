@@ -11,10 +11,6 @@ print("--------------------------------------------------------")
 print("Starting process, time: " + starttime)
 print("")
 # ####################################### FOLDER PATHS & global variables ##################################### #
-#SHP = "L:/_SHARED_DATA/CL_MB/tc_sc/_Version02_300m/points_300m_clip.shp"
-#outputFile = "L:/_SHARED_DATA/CL_MB/tc_sc/_Version02_300m/points_300m_clip_summary.shp"
-#buff_m = 100
-
 
 # ####################################### PROCESSING ########################################################## #
 
