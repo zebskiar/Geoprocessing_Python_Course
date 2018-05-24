@@ -69,9 +69,10 @@ output_dataframe = pd.DataFrame(columns=columns)
 
 # loop over countries --> die Lösung die per mail diskutiert wurde benutzt einen while loop, evtl muss man das anpassen hier.
 for co in #CO_SHP: #
-    country_name = str(co)
-    country_id = #id from panda table
+    country_name = #### these depend on how the main loop is constructed,
+    country_id = #### solutions for the while loop are already in the code discussed by mail
 
+    # this is where we need to extract the attribute table of the PAs filtered by country (spatial):
     "EXTRACT PA-Attributes by country location ### For this we need the spatial information " \ # .GetField() call?
     "input shoul be the PA dataset thats already cleaned of marine and coastal PAs " \
     "*OR* the selection of PAs from which to select by country is set to terrestial only (if thats possible)" \
@@ -101,31 +102,5 @@ for co in #CO_SHP: #
         output_cat_level = [country_id, country_name, str(cat), cat_pa_count, cat_mean_area, cat_max_area, cat_max_area_name,
                             cat_max_area_year]
         output_dataframe = output_dataframe.append(pd.DataFrame(data=output_cat_level), ignore_index=True)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
