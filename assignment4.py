@@ -8,58 +8,6 @@ import numpy as np
 import shapefile
 
 
-#shapefile to dataframe countries
-
-#shp_path_CO = r"O:\Student_Data\DieckmannM\python2\groupwork\gadm36_dissolve.shp"
-#shp_path_CO = r"D:\UNI\Python\Assignment04\data\gadm36_dissolve.shp"
-shp_path_CO = r"D:\UNI\Python\Assignment04\data\GER_SUI_subset.shp"
-
-sf_CO = shapefile.Reader(shp_path_CO)
-#print(sf_CO)
-#grab the shapefile's field names (omit the first psuedo field)
-fields_CO = [x[0] for x in sf_CO.fields][1:]
-records_CO = sf_CO.records()
-shps_CO = [s.points for s in sf_CO.shapes()]
-print(shps)
-#write the records into a dataframe
-CO_dataframe = pd.DataFrame(columns=fields_CO, data=records_CO)
-#add the coordinate data to a column called "coords"
-CO_dataframe = CO_dataframe.assign(coords=shps_CO)
-print(CO_dataframe)
-CO_dataframe.to_csv("D:\UNI\Python\Assignment04\data\pandas_CO.csv", sep=' ')
-
-
-#shapefile to dataframe protected areas
-
-shp_path_PA = r"D:\UNI\Python\Assignment04\data\subset_WDPA.shp"
-sf_PA = shapefile.Reader(shp_path_PA)
-print(sf_PA)
-#grab the shapefile's field names (omit the first psuedo field)
-fields_PA = [x[0] for x in sf_PA.fields][1:]
-records_PA = sf_PA.records()
-shps_PA = [s.points for s in sf_PA.shapes()]
-#print(shps)
-#write the records into a dataframe
-PA_dataframe = pd.DataFrame(columns=fields_PA, data=records_PA)
-#add the coordinate data to a column called "coords"
-PA_dataframe = PA_dataframe.assign(coords=shps_PA)
-print(PA_dataframe)
-PA_dataframe.to_csv("O:\Student_Data\DieckmannM\python2\groupwork\pandas_PA.csv", sep=' ')
-
-
-# needed variables:
-# country
-# MARINE (string) [0 (terrestrial),1 (coastal),2 (marine)]
-# IUCN_CAT (string) [I-IV, not reported, not applicable]
-# NAME (string)
-# STATUS_YR (string)
-# GIS_AREA (double)
-# STATUS (string) [only designated & established]
-
-# MARINE == 0
-# STATUS == established OR designated
-
-
 ############################################################
 ### Processing Loop
 
