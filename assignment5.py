@@ -138,3 +138,118 @@ print("--------------------------------------------------------")
 print("start: " + starttime)
 print("end: " + endtime)
 print("")
+
+
+
+# ####################################### create shapefile and layer ################################## #
+
+# create a shapefile for polygons
+shapefile = driver.CreateDataSource(wd+'polygon.shp')
+# set spatial reference
+spatialreference = ogr.osr.SpatialReference()
+spatialreference.ImportFromEPSG(3035)
+
+#create the layer
+layer = shapefile.CreateLayer('polygon.shp', spatialreference, ogr.wkbPolygon)
+layerDefinition = layer.GetLayerDefn()
+# add attributes to layer
+point_ID = ogr.FieldDefn('point_ID', ogr.OFTReal)
+polygon_ID = ogr.FieldDefn('polygon_ID', ogr.OFTReal)
+PA_name = ogr.FieldDefn('PA_name', ogr.OFTString)
+layer.CreateField(point_ID)
+layer.CreateField(polygon_ID)
+layer.CreateField(PA_name)
+
+
+# ####################################### define a function ################################## #
+
+def GeometrytoFeature(n, m):
+    polygon = ogr.Geometry(ogr.wkbPolygon) # create a polygon
+    polygon.AddGeometry(ring) # add geometry to polygon
+    feature = ogr.Feature(layerDefinition) # greate a feature
+    feature.SetGeometry(polygon) # put geometry into feature
+    feature.SetField("point_ID", str(n)) # add attributes
+    feature.SetField("polygon_ID", str(n+m)) # add attributes
+    feature.SetField("PA_name", pnt_df.iloc[n][1]) # add attributes
+    layer.CreateFeature(feature) # put feature in layer
+    return
+
+# ####################################### create polygons ################################## #
+
+n = 0 # number of random point
+for point in pnt_df: # a loop for all random points
+    x_centre = pnt_df.iloc[n][2] # x-value of random point n
+    y_centre = pnt_df.iloc[n][3] # y-value of random point n
+    # get the x-values and y-values
+    x1 = x_centre-45
+    x2 = x_centre-15
+    x3 = x_centre+15
+    x4 = x_centre+45
+    y1 = y_centre-45
+    y2 = y_centre-15
+    y3 = y_centre+15
+    y4 = y_centre+45
+    # create the middle polygon
+    ring = ogr.Geometry(ogr.wkbLinearRing)
+    ring.AddPoint(x2, y3)
+    ring.AddPoint(x3, y3)
+    ring.AddPoint(x3, y2)
+    ring.AddPoint(x2, y2)
+    GeometrytoFeature(n=n, m=0.1) # function
+    # upper-left
+    ring = ogr.Geometry(ogr.wkbLinearRing)
+    ring.AddPoint(x1, y4)
+    ring.AddPoint(x2, y4)
+    ring.AddPoint(x2, y3)
+    ring.AddPoint(x1, y3)
+    GeometrytoFeature(n=n, m=0.2) 
+    # upper-middle
+    ring = ogr.Geometry(ogr.wkbLinearRing)
+    ring.AddPoint(x2, y4)
+    ring.AddPoint(x3, y4)
+    ring.AddPoint(x3, y3)
+    ring.AddPoint(x2, y3)
+    GeometrytoFeature(n=n, m=0.3) 
+    # upper-right
+    ring = ogr.Geometry(ogr.wkbLinearRing)
+    ring.AddPoint(x3, y4)
+    ring.AddPoint(x4, y4)
+    ring.AddPoint(x4, y3)
+    ring.AddPoint(x3, y3)
+    GeometrytoFeature(n=n, m=0.4)     
+    # middle-left
+    ring = ogr.Geometry(ogr.wkbLinearRing)
+    ring.AddPoint(x1, y3)
+    ring.AddPoint(x2, y3)
+    ring.AddPoint(x2, y2)
+    ring.AddPoint(x1, y2)
+    GeometrytoFeature(n=n, m=0.5)
+    # middle-right    
+    ring = ogr.Geometry(ogr.wkbLinearRing)
+    ring.AddPoint(x3, y3)
+    ring.AddPoint(x4, y3)
+    ring.AddPoint(x4, y2)
+    ring.AddPoint(x3, y2)
+    GeometrytoFeature(n=n, m=0.6)
+    # lower-left     
+    ring = ogr.Geometry(ogr.wkbLinearRing)
+    ring.AddPoint(x1, y2)
+    ring.AddPoint(x2, y2)
+    ring.AddPoint(x2, y1)
+    ring.AddPoint(x1, y1)
+    GeometrytoFeature(n=n, m=0.7)    
+    # lower-middle
+    ring = ogr.Geometry(ogr.wkbLinearRing)
+    ring.AddPoint(x2, y2)
+    ring.AddPoint(x3, y2)
+    ring.AddPoint(x3, y1)
+    ring.AddPoint(x2, y1)
+    GeometrytoFeature(n=n, m=0.8)   
+    # lower-right
+    ring = ogr.Geometry(ogr.wkbLinearRing)
+    ring.AddPoint(x3, y2)
+    ring.AddPoint(x4, y2)
+    ring.AddPoint(x4, y1)
+    ring.AddPoint(x3, y1)
+    GeometrytoFeature(n=n, m=0.9) 
+    n = n+1
