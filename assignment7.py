@@ -20,14 +20,13 @@ wd = "D:/UNI/Python/Assignment07/data/"
 # ####################################### PROCESSING ########################################################## #
 
 dem = gdal.Open(wd+"Elevation.tif")
-dem_ref = osr.SpatialReference()
 dem_gt = dem.GetGeoTransform()
 dem_ar = dem.GetRasterBand(1).ReadAsArray()
 
 d2r = gdal.Open(wd+"DistToRoad.tif")
-d2r_ref = osr.SpatialReference()
 d2r_gt = d2r.GetGeoTransform()
 d2r_ar = d2r.GetRasterBand(1).ReadAsArray()
+d2r_ref = osr.SpatialReference()
 d2r_ref.ImportFromWkt(d2r.GetProjection())
 
 driver = ogr.GetDriverByName('ESRI Shapefile')
