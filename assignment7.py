@@ -5,9 +5,7 @@
 # ####################################### LOAD REQUIRED LIBRARIES ############################################# #
 
 import time
-import gdal
-import ogr
-import osr
+from osgeo import gdal, ogr, osr
 import pandas as pd
 
 # ####################################### SET TIME-COUNT ###################################################### #
@@ -37,13 +35,13 @@ SRC_points = driver.Open(wd+"Points.shp")
 points = SRC_points.GetLayer()
 pnt = points.GetNextFeature()
 
-SRC_old = driver.Open(wd+"Old_Growth_Diss.shp", 0)
+SRC_old = driver.Open(wd+"Old_Growth.shp", 0)
 old = SRC_old.GetLayer()
 old_feat = old.GetNextFeature()
 old_geom = old_feat.GetGeometryRef()
 old_ref = old.GetSpatialRef()
 
-SRC_priv = driver.Open(wd+"PrivateLands_Diss.shp", 0)
+SRC_priv = driver.Open(wd+"PrivateLands.shp", 0)
 priv = SRC_priv.GetLayer()
 priv_feat = priv.GetNextFeature()
 priv_geom = priv_feat.GetGeometryRef()
@@ -64,16 +62,14 @@ while pnt:
     pnt_geom = pnt.GetGeometryRef()
 
     priv_pnt = reproj_point(pnt_geom, priv_ref)
-    if priv_geom.Contains(priv_pnt):
-        out_df.loc[len(out_df) + 1] = [pnt_id, "Private", 1]
-    else:
-        out_df.loc[len(out_df) + 1] = [pnt_id, "Private", 0]
+    priv.SetSpatialFilter(priv_pnt)
+    out_df.loc[len(out_df) + 1] = [pnt_id, "Private", priv.GetFeatureCount()]
+    priv.SetSpatialFilter(None)
 
     old_pnt = reproj_point(pnt_geom, old_ref)
-    if old_geom.Contains(old_pnt):
-        out_df.loc[len(out_df) + 1] = [pnt_id, "OldGrowth", 1]
-    else:
-        out_df.loc[len(out_df) + 1] = [pnt_id, "OldGrowth", 0]
+    old.SetSpatialFilter(old_pnt)
+    out_df.loc[len(out_df) + 1] = [pnt_id, "OldGrowth", old.GetFeatureCount()]
+    old.SetSpatialFilter(None)
 
     pnt_x, pnt_y = pnt_geom.GetX(), pnt_geom.GetY()
     pnt_elev = dem_ar[int((pnt_y - dem_gt[3]) / dem_gt[5]), int((pnt_x - dem_gt[0]) / dem_gt[1])]
