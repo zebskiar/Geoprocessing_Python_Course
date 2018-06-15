@@ -9,7 +9,6 @@ import gdal
 import ogr
 import osr
 import pandas as pd
-import struct
 
 # ####################################### SET TIME-COUNT ###################################################### #
 starttime = time.strftime("%a, %d %b %Y %H:%M:%S", time.localtime())
@@ -26,7 +25,6 @@ dem = gdal.Open(wd+"Elevation.tif")
 dem_ref = osr.SpatialReference()
 dem_gt = dem.GetGeoTransform()
 dem_ar = dem.GetRasterBand(1).ReadAsArray()
-#dem_ref.ImportFromWkt(dem.GetProjection()) #  same srs as points
 
 d2r = gdal.Open(wd+"DistToRoad.tif")
 d2r_ref = osr.SpatialReference()
@@ -63,51 +61,28 @@ def reproj_point(point_geom, target_prj):
 out_df = pd.DataFrame(columns=["Point ID", "Variable", "Value"])
 while pnt:
     pnt_id = pnt.GetField('Id')
-    print(pnt_id)
     pnt_geom = pnt.GetGeometryRef()
-    #temp_geom = pnt_geom.Clone()
-    print("original:", pnt_geom.GetX(), pnt_geom.GetY())
 
     priv_pnt = reproj_point(pnt_geom, priv_ref)
     if priv_geom.Contains(priv_pnt):
-        print("1")
         out_df.loc[len(out_df) + 1] = [pnt_id, "Private", 1]
     else:
-        print("0")
         out_df.loc[len(out_df) + 1] = [pnt_id, "Private", 0]
 
     old_pnt = reproj_point(pnt_geom, old_ref)
-    print("transformed:", old_pnt.GetX(), old_pnt.GetY())
     if old_geom.Contains(old_pnt):
-        print("1")
         out_df.loc[len(out_df) + 1] = [pnt_id, "OldGrowth", 1]
     else:
-        print("0")
         out_df.loc[len(out_df) + 1] = [pnt_id, "OldGrowth", 0]
 
     pnt_x, pnt_y = pnt_geom.GetX(), pnt_geom.GetY()
-    #xx = int((pnt_x - dem_gt[0]) / dem_gt[1])
-    #yy = int((pnt_y - dem_gt[3]) / dem_gt[5])
     pnt_elev = dem_ar[int((pnt_y - dem_gt[3]) / dem_gt[5]), int((pnt_x - dem_gt[0]) / dem_gt[1])]
     out_df.loc[len(out_df) + 1] = [pnt_id, "Elevation", pnt_elev]
 
-    #rb = dem.GetRasterBand(1)
-    #test = rb.ReadRaster(xx, yy, 1, 1)
-    #test2 = struct.unpack('H', test)
-    #print(test2[0])
-
     d2r_pnt = reproj_point(pnt_geom, d2r_ref)
-    print("transformed:", d2r_pnt.GetX(), d2r_pnt.GetY())
     pnt_x, pnt_y = d2r_pnt.GetX(), d2r_pnt.GetY()
-    #xxx = int((pnt_xx - d2r_gt[0]) / d2r_gt[1])
-    #yyy = int((pnt_yy - d2r_gt[3]) / d2r_gt[5])
     pnt_d2r = d2r_ar[int((pnt_y - d2r_gt[3]) / d2r_gt[5]), int((pnt_x - d2r_gt[0]) / d2r_gt[1])]
     out_df.loc[len(out_df) + 1] = [pnt_id, "Road_Dist", pnt_d2r]
-
-    #rb2 = d2r.GetRasterBand(1)
-    #testt = rb2.ReadRaster(xxx, yyy, 1, 1)
-    #testt2 = struct.unpack('f', testt)
-    #print(testt2[0])
 
     print("finished with point", pnt_id)
     pnt = points.GetNextFeature()
