@@ -58,7 +58,7 @@ roads_lyr = roads.GetLayer()
 thp = ogr.Open("TimberHarvestPlan.shp")
 thp_lyr = thp.GetLayer()
 
-public = ogr.Open("publicLands.shp")
+public = ogr.Open("PublicLands.shp")
 public_lyr = public.GetLayer()
 
 # Create output dataframe
@@ -165,7 +165,6 @@ while feat:
     # Get Coordinates of polygon envelope
     x_min, x_max, y_min, y_max = p_geom_trans.GetEnvelope()
 
-    print(1)
     # Create dummy shapefile to story features geometry in (necessary for rasterizing)
     drv_mem = ogr.GetDriverByName('Memory')
     ds = drv_mem.CreateDataSource("")
@@ -176,7 +175,6 @@ while feat:
     ds_lyr.CreateFeature(out_feat)
     out_feat = None
     # CopySHPDisk(ds_lyr, "tryout.shp") #If you wish to check the shp
-    print(2)
     # Create the destination data source
     x_res = math.ceil((x_max - x_min) / gt[1])
     y_res = math.ceil((y_max - y_min) / gt[1])
@@ -184,23 +182,19 @@ while feat:
     target_ds.GetRasterBand(1).SetNoDataValue(-9999)
     target_ds.SetProjection(pr)
     target_ds.SetGeoTransform((x_min, gt[1], 0, y_max, 0, gt[5]))
-    print(3)
     # Rasterization
-    gdal.RasterizeLayer(target_ds, [1], ds_lyr, burn_values=[1], options=['ALL_TOUCHED=TRUE'])
+    gdal.RasterizeLayer(target_ds, [1], ds_lyr, burn_values=[1]) #, options=['ALL_TOUCHED=TRUE']
     target_array = target_ds.ReadAsArray()
     # target_ds = None
-    print(4)
     # Convert data from the DEM to the extent of the envelope of the polygon (to array)
     inv_gt = gdal.InvGeoTransform(gt)
     offsets_ul = gdal.ApplyGeoTransform(inv_gt, x_min, y_max)
     off_ul_x, off_ul_y = map(int, offsets_ul)
     raster_np = np.array(dem.GetRasterBand(1).ReadAsArray(off_ul_x, off_ul_y, x_res, y_res))
-    print(5)
     # Calculate the mean of the array with masking
     test_array = np.ma.masked_where(target_array < 1, target_array)
     raster_masked = np.ma.masked_array(raster_np, test_array.mask)
     dem_mean = np.mean(raster_masked)
-    print(6)
     # append results in dataframe
     out_df.loc[len(out_df) + 1] = [apn, total_gh, total_od, distance, len_priv, len_loc, dem_mean, pl, thp_prop] # insert further variables from other groups
     feat = parcels_lyr.GetNextFeature()
